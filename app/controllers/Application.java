@@ -5,11 +5,11 @@ import play.mvc.Result;
 import restrict.RestrictToHostGroup;
 import views.html.index;
 
-@RestrictToHostGroup("default")
+@RestrictToHostGroup   // Same as @RestrictToHostGroup("default")
 public class Application extends Controller {
 
     public static Result index() {
-        return ok(index.render("Your new application is ready."));
+        return ok(index.render("User."));
     }
 
     @RestrictToHostGroup("admin")
