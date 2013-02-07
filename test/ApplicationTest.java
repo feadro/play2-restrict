@@ -34,6 +34,13 @@ public class ApplicationTest {
         assertThat(InetAddresses.isInetAddress("0:0:0:0:0:0:0:1")).isTrue();
     }
 
+    @Test
+    public void trimIPv6() {
+        assertThat((new RestrictToHostGroupAction()).trimRemoteAddress("0:0:0:0:0:0:0:1")).isEqualTo("0:0:0:0:0:0:0:1");
+        assertThat((new RestrictToHostGroupAction()).trimRemoteAddress("0:0:0:0:0:0:0:1%1")).isEqualTo("0:0:0:0:0:0:0:1");
+        assertThat((new RestrictToHostGroupAction()).trimRemoteAddress("192.168.0.11")).isEqualTo("192.168.0.11");
+    }
+
     @Test 
     public void testAccessGranted() {
         assertThat((new RestrictToHostGroupAction()).addressMatchesPattern("192.168.0.1", "192.168.0.1")).isTrue();

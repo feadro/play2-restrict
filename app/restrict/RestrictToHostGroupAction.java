@@ -27,7 +27,7 @@ public class RestrictToHostGroupAction extends Action<RestrictToHostGroup> {
 
             String value = configuration.value();
             String group = (value == null || value.isEmpty()) ? DEFAULT : value;
-            String remoteAddress = ctx.request().remoteAddress();
+            String remoteAddress = trimRemoteAddress(ctx.request().remoteAddress());
 
             /**
              * Check if our application.conf contains the group requested. Otherwise
@@ -68,7 +68,7 @@ public class RestrictToHostGroupAction extends Action<RestrictToHostGroup> {
 
     public Boolean addressMatchesPattern(String remoteAddress, String pattern) {
         /**
-         * If the pattern is an IPv4-address, then we need an exact match.
+         * If the pattern is an IPv4/6-address, then we need an exact match.
          */
         if(InetAddresses.isInetAddress(pattern)) {
             return StringUtils.equals(remoteAddress, pattern);
@@ -77,7 +77,21 @@ public class RestrictToHostGroupAction extends Action<RestrictToHostGroup> {
         /**
          * Pattern seems to be a partial IP. Match against that.
          */
-         return StringUtils.startsWith(remoteAddress, (StringUtils.endsWith(pattern, ".")) ? pattern : pattern + ".");
+        String sep = (isIPv6(remoteAddress)) ? ":" : ".";
+        return StringUtils.startsWith(remoteAddress, (StringUtils.endsWith(pattern, sep)) ? pattern : pattern + sep);
     }
 
+    public String trimRemoteAddress(String addr) {
+        /**
+         * IPv6 addresses might contain a % at the end. Return a clean IPv6.
+         */
+        if(isIPv6(addr)) {
+            return StringUtils.substringBefore(addr, "%");
+        }
+        return addr;
+    }
+
+    public Boolean isIPv6(String addr) {
+        return StringUtils.contains(addr, ":");
+    }
 }
